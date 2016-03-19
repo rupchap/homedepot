@@ -33,7 +33,7 @@ def main():
     print('configure data for training')
     id_test = df_test['id']
     y_train = df_train['relevance'].values
-    X_train =df_train[:]
+    X_train = df_train[:]
     X_test = df_test[:]
 
     print('construct model')
@@ -51,6 +51,9 @@ def main():
     # think we need to first fit tfidvectoriser to each of title, description, brand
     # and then insert into pipeline to generate 3x features of search term against the respective vocabs
     # potentially just include similarity scores as features.  or maybe RF will handle this on its own...
+
+
+    sim = TfidfVectorizer().fit_transform(df_train['q'])
 
 
     # pipeline:
