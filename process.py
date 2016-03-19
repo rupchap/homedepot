@@ -82,3 +82,6 @@ def tfidf_similarity(comparator1, comparator2):
     comparator1_vec = tfidf.fit_transform(comparator1)
     comparator2_vec = tfidf.transform(comparator2)
     return (comparator1_vec * comparator2_vec.T).diagonal()
+
+if __name__ == "__main__":
+    load_data()

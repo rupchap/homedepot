@@ -16,7 +16,7 @@ from process import load_data
 
 # developed from https://www.kaggle.com/hellozeyu/home-depot-product-search-relevance/test-script-1
 
-use_preprocessed_data = True
+use_preprocessed_data = False
 
 
 def main():
@@ -94,4 +94,6 @@ def main():
     print('save submission file')
     pd.DataFrame({"id": id_test, "relevance": y_pred}).to_csv('submission.csv', index=False)
 
-main()
+
+if __name__ == "__main__":
+    main()
