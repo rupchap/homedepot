@@ -1,4 +1,5 @@
 from utils import *
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 def load_data():
@@ -55,6 +56,15 @@ def load_data():
         i += 1
     df_all['brand_feature'] = df_all['brand'].map(lambda x: d[x])
 
+    print('product title similarity')
+    df_all['pt_similarity'] = tfidf_similarity(df_all['product_title'], df_all['search_term'])
+
+    print('product description similarity')
+    df_all['pd_similarity'] = tfidf_similarity(df_all['product_description'], df_all['search_term'])
+
+    print('brand similarity')
+    df_all['brand_similarity'] = tfidf_similarity(df_all['brand'], df_all['search_term'])
+
     print('split training and test data')
     num_train = df_train.shape[0]
     df_train = df_all.iloc[:num_train]
@@ -65,3 +75,10 @@ def load_data():
     df_test.to_csv('data/test_processed.csv')
 
     return df_train, df_test
+
+
+def tfidf_similarity(comparator1, comparator2):
+    tfidf = TfidfVectorizer()
+    comparator1_vec = tfidf.fit_transform(comparator1)
+    comparator2_vec = tfidf.transform(comparator2)
+    return (comparator1_vec * comparator2_vec.T).diagonal()

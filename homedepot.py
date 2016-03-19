@@ -52,6 +52,7 @@ def main():
     # and then insert into pipeline to generate 3x features of search term against the respective vocabs
     # potentially just include similarity scores as features.  or maybe RF will handle this on its own...
 
+
     # pipeline:
     # 1. build feature unions [cust_txt_col (to extract column) -> tfidf -> tsvd]
     # 2. pass to random forest.
