@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 # from sklearn import pipeline, model_selection
-from sklearn import pipeline, grid_search
-from sklearn.pipeline import FeatureUnion
+from sklearn import grid_search
+from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.decomposition import TruncatedSVD
 # from sklearn.feature_extraction import DictVectorizer
 # from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
@@ -16,7 +16,7 @@ from process import load_data
 
 # developed from https://www.kaggle.com/hellozeyu/home-depot-product-search-relevance/test-script-1
 
-use_preprocessed_data = False
+use_preprocessed_data = True
 
 
 def main():
@@ -37,18 +37,33 @@ def main():
     X_test = df_test[:]
 
     print('construct model')
-    rfr = RandomForestRegressor(n_estimators=500, n_jobs=-1, random_state=240480, verbose=1)
+
+    # TF-IDF vectorize - converts docs to tf-idf feature matrix.
     tfidf = TfidfVectorizer(ngram_range=(1, 1), stop_words='english')
+
+    # truncated singular value decomposition - dimensionality reduction.
     tsvd = TruncatedSVD(n_components=10, random_state=240480)
 
-    clf = pipeline.Pipeline([
+     # random forest
+    rfr = RandomForestRegressor(n_estimators=500, n_jobs=-1, random_state=240480, verbose=1)
+
+    # TODO: get these features to include some cosine similarity measure between search term and other fields!
+    # think we need to first fit tfidvectoriser to each of title, description, brand
+    # and then insert into pipeline to generate 3x features of search term against the respective vocabs
+    # potentially just include similarity scores as features.  or maybe RF will handle this on its own...
+
+
+    # pipeline:
+    # 1. build feature unions [cust_txt_col (to extract column) -> tfidf -> tsvd]
+    # 2. pass to random forest.
+    clf = Pipeline([
         ('union', FeatureUnion(
             transformer_list=[
                 ('cst',  cust_regression_vals()),
-                ('txt1', pipeline.Pipeline([('s1', cust_txt_col(key='search_term')), ('tfidf1', tfidf), ('tsvd1', tsvd)])),
-                ('txt2', pipeline.Pipeline([('s2', cust_txt_col(key='product_title')), ('tfidf2', tfidf), ('tsvd2', tsvd)])),
-                ('txt3', pipeline.Pipeline([('s3', cust_txt_col(key='product_description')), ('tfidf3', tfidf), ('tsvd3', tsvd)])),
-                ('txt4', pipeline.Pipeline([('s4', cust_txt_col(key='brand')), ('tfidf4', tfidf), ('tsvd4', tsvd)]))
+                ('txt1', Pipeline([('s1', cust_txt_col(key='search_term')), ('tfidf1', tfidf), ('tsvd1', tsvd)])),
+                ('txt2', Pipeline([('s2', cust_txt_col(key='product_title')), ('tfidf2', tfidf), ('tsvd2', tsvd)])),
+                ('txt3', Pipeline([('s3', cust_txt_col(key='product_description')), ('tfidf3', tfidf), ('tsvd3', tsvd)])),
+                ('txt4', Pipeline([('s4', cust_txt_col(key='brand')), ('tfidf4', tfidf), ('tsvd4', tsvd)]))
             ],
             transformer_weights={
                 'cst': 1.0,
@@ -62,6 +77,7 @@ def main():
         ('rfr', rfr)])
 
     print('run grid search')
+    # TODO: search over relative weightings of transformer features?
     param_grid = {'rfr__max_features': [10], 'rfr__max_depth': [20]}
     RMSE = make_scorer(fmean_squared_error, greater_is_better=False)
     model = grid_search.GridSearchCV(estimator=clf, param_grid=param_grid, cv=2, scoring=RMSE)
