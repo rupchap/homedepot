@@ -1,0 +1,20 @@
+Best parameters found by grid search:
+{'rfr__max_features': 10, 'rfr__max_depth': 20}
+Best CV score:
+-0.467949661823
+
+
+param_grid = {'rfr__max_features': [20, 15, 10], 'rfr__max_depth': [30, 20, 10]}
+Best parameters found by grid search:
+{'rfr__max_features': 10, 'rfr__max_depth': 30}
+Best CV score:
+-0.46369438594
+kaggle -  0.47955
+
+with weight on similarity measures boosted to 3
+Best parameters found by grid search:
+{'rfr__max_features': 10, 'rfr__max_depth': 40}
+Best CV score:
+-0.467882215928
+run predictions
+kaggle - 0.47961
