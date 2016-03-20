@@ -16,7 +16,7 @@ from process import load_data
 
 # developed from https://www.kaggle.com/hellozeyu/home-depot-product-search-relevance/test-script-1
 
-use_preprocessed_data = False
+use_preprocessed_data = True
 
 
 def main():
@@ -44,7 +44,7 @@ def main():
     # truncated singular value decomposition - dimensionality reduction.
     tsvd = TruncatedSVD(n_components=10, random_state=240480)
 
-     # random forest
+    # random forest
     rfr = RandomForestRegressor(n_estimators=500, n_jobs=-1, random_state=240480, verbose=1)
 
     # union of:
@@ -55,6 +55,9 @@ def main():
     clf = Pipeline([
         ('union', FeatureUnion(
             transformer_list=[
+                ('ptsim', ItemSelector(key='pt_similarity')),
+                ('pdsim', ItemSelector(key='pd_similarity')),
+                ('brsim', ItemSelector(key='brand_similarity')),
                 ('cst',  cust_regression_vals()),
                 ('txt1', Pipeline([('s1', cust_txt_col(key='search_term')), ('tfidf1', tfidf), ('tsvd1', tsvd)])),
                 ('txt2', Pipeline([('s2', cust_txt_col(key='product_title')), ('tfidf2', tfidf), ('tsvd2', tsvd)])),
@@ -62,6 +65,9 @@ def main():
                 ('txt4', Pipeline([('s4', cust_txt_col(key='brand')), ('tfidf4', tfidf), ('tsvd4', tsvd)]))
             ],
             transformer_weights={
+                'ptsim': 1.0,
+                'pdsim': 1.0,
+                'brsim': 1.0,
                 'cst': 1.0,
                 'txt1': 0.5,
                 'txt2': 0.25,

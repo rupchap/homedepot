@@ -107,7 +107,7 @@ class cust_regression_vals(BaseEstimator, TransformerMixin):
 
     def transform(self, hd_searches):
         d_col_drops = ['id', 'relevance', 'search_term', 'product_title', 'product_description',
-                       'product_info', 'attr', 'brand']
+                       'product_info', 'attr', 'brand', 'pt_similarity', 'pd_similarity', 'brand_similarity']
         hd_searches = hd_searches.drop(d_col_drops, axis=1).values
         return hd_searches
 
@@ -122,3 +122,14 @@ class cust_txt_col(BaseEstimator, TransformerMixin):
     def transform(self, data_dict):
         return data_dict[self.key].apply(str)
 
+
+class ItemSelector(BaseEstimator, TransformerMixin):
+
+    def __init__(self, key):
+        self.key = key
+
+    def fit(self, x, y=None):
+        return self
+
+    def transform(self, data_dict):
+        return data_dict[[self.key]]
