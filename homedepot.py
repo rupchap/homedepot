@@ -47,15 +47,11 @@ def main():
      # random forest
     rfr = RandomForestRegressor(n_estimators=500, n_jobs=-1, random_state=240480, verbose=1)
 
-    # TODO: get these features to include some cosine similarity measure between search term and other fields!
-    # think we need to first fit tfidvectoriser to each of title, description, brand
-    # and then insert into pipeline to generate 3x features of search term against the respective vocabs
-    # potentially just include similarity scores as features.  or maybe RF will handle this on its own...
-
-
-    # pipeline:
-    # 1. build feature unions [cust_txt_col (to extract column) -> tfidf -> tsvd]
-    # 2. pass to random forest.
+    # union of:
+    # cst - all added numeric features [cust_regression_vals just drops all text/id columns]
+    # txt1-4 - pipelines for 4 text fields (search, title, description, brand)
+    #   pipelines: cust_txt_col extracts column -> tfidf to form vector -> tsvd for dim. reduction
+    # above are weighted and then passed to random forest.
     clf = Pipeline([
         ('union', FeatureUnion(
             transformer_list=[
@@ -77,7 +73,6 @@ def main():
         ('rfr', rfr)])
 
     print('run grid search')
-    # TODO: search over relative weightings of transformer features?
     param_grid = {'rfr__max_features': [10], 'rfr__max_depth': [20]}
     RMSE = make_scorer(fmean_squared_error, greater_is_better=False)
     model = grid_search.GridSearchCV(estimator=clf, param_grid=param_grid, cv=2, scoring=RMSE)

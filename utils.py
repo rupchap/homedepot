@@ -106,7 +106,8 @@ class cust_regression_vals(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, hd_searches):
-        d_col_drops=['id','relevance','search_term','product_title','product_description','product_info','attr','brand']
+        d_col_drops = ['id', 'relevance', 'search_term', 'product_title', 'product_description',
+                       'product_info', 'attr', 'brand']
         hd_searches = hd_searches.drop(d_col_drops, axis=1).values
         return hd_searches
 
