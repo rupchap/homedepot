@@ -7,3 +7,5 @@ docs/
 fromforum/
 *.pyc
 *.csv
+.DS_Store
+._.DS_Store
