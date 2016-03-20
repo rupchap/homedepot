@@ -65,9 +65,9 @@ def main():
                 ('txt4', Pipeline([('s4', cust_txt_col(key='brand')), ('tfidf4', tfidf), ('tsvd4', tsvd)]))
             ],
             transformer_weights={
-                'ptsim': 1.0,
-                'pdsim': 1.0,
-                'brsim': 1.0,
+                'ptsim': 3.0,
+                'pdsim': 3.0,
+                'brsim': 3.0,
                 'cst': 1.0,
                 'txt1': 0.5,
                 'txt2': 0.25,
@@ -79,7 +79,7 @@ def main():
         ('rfr', rfr)])
 
     print('run grid search')
-    param_grid = {'rfr__max_features': [10], 'rfr__max_depth': [20]}
+    param_grid = {'rfr__max_features': [10], 'rfr__max_depth': [20, 30, 40]}
     RMSE = make_scorer(fmean_squared_error, greater_is_better=False)
     model = grid_search.GridSearchCV(estimator=clf, param_grid=param_grid, cv=2, scoring=RMSE)
     model.fit(X_train, y_train)
