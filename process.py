@@ -28,6 +28,18 @@ def load_data():
     df_all['product_description'] = df_all['product_description'].map(lambda x: str_stem(str(x)))
     df_all['brand'] = df_all['brand'].map(lambda x: str_stem(str(x)))
 
+    print('product title similarity')
+    df_all['pt_similarity'] = tfidf_similarity(df_all['product_title'], df_all['search_term'])
+
+    print('product description similarity')
+    df_all['pd_similarity'] = tfidf_similarity(df_all['product_description'], df_all['search_term'])
+
+    print('brand similarity')
+    df_all['brand_similarity'] = tfidf_similarity(df_all['brand'], df_all['search_term'])
+
+    print('save processed data')
+    df_all.to_csv('data/all_processed.csv')
+
     print('create length of text features')
     df_all['len_of_query'] = df_all['search_term'].map(lambda x: len(str(x).split())).astype(np.int64)
     df_all['len_of_title'] = df_all['product_title'].map(lambda x: len(str(x).split())).astype(np.int64)
@@ -56,15 +68,6 @@ def load_data():
         i += 1
     df_all['brand_feature'] = df_all['brand'].map(lambda x: d[x])
 
-    print('product title similarity')
-    df_all['pt_similarity'] = tfidf_similarity(df_all['product_title'], df_all['search_term'])
-
-    print('product description similarity')
-    df_all['pd_similarity'] = tfidf_similarity(df_all['product_description'], df_all['search_term'])
-
-    print('brand similarity')
-    df_all['brand_similarity'] = tfidf_similarity(df_all['brand'], df_all['search_term'])
-
     print('split training and test data')
     num_train = df_train.shape[0]
     df_train = df_all.iloc[:num_train]
@@ -78,10 +81,19 @@ def load_data():
 
 
 def tfidf_similarity(comparator1, comparator2):
-    tfidf = TfidfVectorizer()
+
+    num_records = comparator1.shape[0]
+
+    tfidf = TfidfVectorizer(stop_words='english')
     comparator1_vec = tfidf.fit_transform(comparator1)
     comparator2_vec = tfidf.transform(comparator2)
-    return (comparator1_vec * comparator2_vec.T).diagonal()
+
+    similarity_score = np.zeros(num_records)
+
+    for i in range(num_records):
+        similarity_score[i]=((comparator1_vec[i] * comparator2_vec[i].T))[0, 0]
+
+    return similarity_score
 
 if __name__ == "__main__":
     load_data()
